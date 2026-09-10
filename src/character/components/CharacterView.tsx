@@ -1,11 +1,10 @@
 import type { PointerEventHandler } from 'react';
+import type { Direction } from '../model/Direction';
 import './CharacterView.css';
-
-export type CharacterDirection = 'left' | 'right';
 
 interface CharacterViewProps {
   frameSrc: string;
-  direction: CharacterDirection;
+  direction: Direction;
   width: number;
   height: number;
   onPointerDown?: PointerEventHandler<HTMLDivElement>;
