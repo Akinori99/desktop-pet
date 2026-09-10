@@ -26,10 +26,17 @@ export class CharacterStateMachine {
     }
 
     if (!this.canTransition(nextState)) {
+      console.warn(
+        `[STATE] invalid transition: ${this.currentState} -> ${nextState}`,
+      );
       return false;
     }
 
+    const previousState = this.currentState;
     this.currentState = nextState;
+
+    console.debug(`[STATE] ${previousState} -> ${nextState}`);
+
     return true;
   }
 }
