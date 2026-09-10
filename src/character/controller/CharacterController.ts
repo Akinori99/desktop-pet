@@ -4,6 +4,8 @@ import type { Direction } from '../model/Direction';
 import type { Position } from '../model/Position';
 import type { Velocity } from '../model/Velocity';
 import { CharacterStateMachine } from '../state/CharacterStateMachine';
+import type { ScreenBounds } from '../../platform/ScreenService';
+import { clampHorizontalPosition } from '../../physics/screenBoundary';
 
 export class CharacterController {
   private readonly config: CharacterConfig;
@@ -15,6 +17,8 @@ export class CharacterController {
   private direction: Direction;
 
   private readonly stateMachine: CharacterStateMachine;
+
+  private screenBounds: ScreenBounds | null = null;
 
   constructor(config: CharacterConfig, initialPosition: Position) {
     this.config = config;
@@ -63,6 +67,10 @@ export class CharacterController {
     this.direction = direction;
   }
 
+  setScreenBounds(screenBounds: ScreenBounds): void {
+    this.screenBounds = screenBounds;
+  }
+
   getSnapshot(): CharacterSnapshot {
     return {
       state: this.stateMachine.getCurrentState(),
@@ -84,10 +92,37 @@ export class CharacterController {
 
     if (this.direction === 'right') {
       this.position.x += distance;
+    } else {
+      this.position.x -= distance;
+    }
+
+    this.checkHorizontalBoundary();
+  }
+
+  private checkHorizontalBoundary(): void {
+    if (!this.screenBounds) {
       return;
     }
 
-    this.position.x -= distance;
+    const previousX = this.position.x;
+
+    const clampedX = clampHorizontalPosition(
+      previousX,
+      this.config.size.width,
+      this.screenBounds,
+    );
+
+    if (clampedX === previousX) {
+      return;
+    }
+
+    this.position.x = clampedX;
+
+    if (this.stateMachine.getCurrentState() === 'walk') {
+      this.stateMachine.transition('idle');
+    }
+
+    this.direction = this.direction === 'right' ? 'left' : 'right';
   }
 
   private updateGrabbed(_deltaTime: number): void {}
