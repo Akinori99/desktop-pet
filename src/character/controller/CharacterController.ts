@@ -59,6 +59,10 @@ export class CharacterController {
     }
   }
 
+  setDirection(direction: Direction): void {
+    this.direction = direction;
+  }
+
   getSnapshot(): CharacterSnapshot {
     return {
       state: this.stateMachine.getCurrentState(),
