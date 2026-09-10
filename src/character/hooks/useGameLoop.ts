@@ -17,10 +17,11 @@ export function useGameLoop(callback: (deltaTime: number) => void): void {
       }
 
       const deltaTime = (currentTime - previousTime) / 1000;
+      const safeDeltaTime = Math.min(deltaTime, 0.05);
 
       previousTime = currentTime;
 
-      callbackRef.current(deltaTime);
+      callbackRef.current(safeDeltaTime);
 
       animationFrameId = requestAnimationFrame(loop);
     };
