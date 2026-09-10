@@ -7,7 +7,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             commands::screen::get_screen_bounds,
-            commands::screen::get_usable_screen_bounds
+            commands::screen::get_usable_screen_bounds,
+            commands::window::move_pet_window
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
