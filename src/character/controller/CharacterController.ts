@@ -1,8 +1,8 @@
 import type { CharacterConfig } from '../config/CharacterConfig';
+import type { CharacterSnapshot } from '../model/CharacterSnapshot';
 import type { Direction } from '../model/Direction';
 import type { Position } from '../model/Position';
 import type { Velocity } from '../model/Velocity';
-import type { CharacterSnapshot } from '../model/CharacterSnapshot';
 import { CharacterStateMachine } from '../state/CharacterStateMachine';
 
 export class CharacterController {
@@ -33,6 +33,32 @@ export class CharacterController {
     this.stateMachine = new CharacterStateMachine('idle');
   }
 
+  update(deltaTime: number): void {
+    const state = this.stateMachine.getCurrentState();
+
+    switch (state) {
+      case 'idle':
+        this.updateIdle(deltaTime);
+        break;
+
+      case 'walk':
+        this.updateWalk(deltaTime);
+        break;
+
+      case 'grabbed':
+        this.updateGrabbed(deltaTime);
+        break;
+
+      case 'fall':
+        this.updateFall(deltaTime);
+        break;
+
+      case 'land':
+        this.updateLand(deltaTime);
+        break;
+    }
+  }
+
   getSnapshot(): CharacterSnapshot {
     return {
       state: this.stateMachine.getCurrentState(),
@@ -46,4 +72,14 @@ export class CharacterController {
       frameSrc: this.config.animations.idle.frames[0],
     };
   }
+
+  private updateIdle(_deltaTime: number): void {}
+
+  private updateWalk(_deltaTime: number): void {}
+
+  private updateGrabbed(_deltaTime: number): void {}
+
+  private updateFall(_deltaTime: number): void {}
+
+  private updateLand(_deltaTime: number): void {}
 }
