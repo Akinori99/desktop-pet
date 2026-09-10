@@ -75,7 +75,16 @@ export class CharacterController {
 
   private updateIdle(_deltaTime: number): void {}
 
-  private updateWalk(_deltaTime: number): void {}
+  private updateWalk(deltaTime: number): void {
+    const distance = this.config.movement.walkSpeed * deltaTime;
+
+    if (this.direction === 'right') {
+      this.position.x += distance;
+      return;
+    }
+
+    this.position.x -= distance;
+  }
 
   private updateGrabbed(_deltaTime: number): void {}
 
