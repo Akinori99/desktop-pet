@@ -1,6 +1,7 @@
-import { useRef, type PointerEventHandler } from 'react';
+import { useRef, type PointerEvent, type PointerEventHandler } from 'react';
 
-import { moveWindow } from '../../platform/WindowService';
+import type { Position } from '../model/Position';
+import { getWindowPosition, moveWindow } from '../../platform/WindowService';
 
 interface UseCharacterDragResult {
   onPointerDown: PointerEventHandler<HTMLDivElement>;
@@ -13,6 +14,11 @@ export function useCharacterDrag(): UseCharacterDragResult {
   const activePointerIdRef = useRef<number | null>(null);
   const draggingRef = useRef(false);
 
+  const dragOffsetRef = useRef<Position>({
+    x: 0,
+    y: 0,
+  });
+
   const onPointerDown: PointerEventHandler<HTMLDivElement> = (event) => {
     if (draggingRef.current) {
       return;
@@ -22,6 +28,24 @@ export function useCharacterDrag(): UseCharacterDragResult {
     draggingRef.current = true;
 
     event.currentTarget.setPointerCapture(event.pointerId);
+
+    void getWindowPosition()
+      .then((windowPosition) => {
+        if (
+          !draggingRef.current ||
+          activePointerIdRef.current !== event.pointerId
+        ) {
+          return;
+        }
+
+        dragOffsetRef.current = {
+          x: event.screenX - windowPosition.x,
+          y: event.screenY - windowPosition.y,
+        };
+      })
+      .catch((error: unknown) => {
+        console.error('[INPUT] failed to get window position', error);
+      });
   };
 
   const onPointerMove: PointerEventHandler<HTMLDivElement> = (event) => {
@@ -38,7 +62,7 @@ export function useCharacterDrag(): UseCharacterDragResult {
     });
   };
 
-  const finishDrag = (event: React.PointerEvent<HTMLDivElement>): void => {
+  const finishDrag = (event: PointerEvent<HTMLDivElement>): void => {
     if (activePointerIdRef.current !== event.pointerId) {
       return;
     }
@@ -49,6 +73,11 @@ export function useCharacterDrag(): UseCharacterDragResult {
 
     activePointerIdRef.current = null;
     draggingRef.current = false;
+
+    dragOffsetRef.current = {
+      x: 0,
+      y: 0,
+    };
   };
 
   const onPointerUp: PointerEventHandler<HTMLDivElement> = (event) => {
