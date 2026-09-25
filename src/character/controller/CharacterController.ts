@@ -31,12 +31,18 @@ export class CharacterController {
   }
 
   update(deltaTime: number): void {
-    this.actionController.update(deltaTime);
+    const currentState = this.stateMachine.getCurrentState();
 
-    const action = this.actionController.getCurrentAction();
+    if (currentState === 'idle' || currentState === 'walk') {
+      this.actionController.update(deltaTime);
 
-    if (action !== null) {
-      this.applyAction(action);
+      const action = this.actionController.getCurrentAction();
+
+      if (action !== null) {
+        this.applyAction(action);
+      }
+    } else {
+      this.actionController.cancel();
     }
 
     const state = this.stateMachine.getCurrentState();
