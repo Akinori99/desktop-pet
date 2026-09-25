@@ -79,6 +79,23 @@ export class CharacterController {
     this.animationPlayer.update(deltaTime);
   }
 
+  startGrab(): void {
+    const state = this.stateMachine.getCurrentState();
+
+    if (state !== 'idle' && state !== 'walk') {
+      return;
+    }
+
+    this.actionController.cancel();
+
+    this.velocity = {
+      x: 0,
+      y: 0,
+    };
+
+    this.stateMachine.transition('grabbed');
+  }
+
   setDirection(direction: Direction): void {
     this.direction = direction;
   }
