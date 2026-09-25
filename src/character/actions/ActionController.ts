@@ -5,6 +5,9 @@ import { randomBetween } from '../../shared/random';
 const IDLE_MIN_DURATION = 2;
 const IDLE_MAX_DURATION = 10;
 
+const WALK_MIN_DURATION = 3;
+const WALK_MAX_DURATION = 8;
+
 export class ActionController {
   private currentAction: CharacterAction | null = null;
   private remainingTime = 0;
@@ -35,7 +38,7 @@ export class ActionController {
     if (nextAction === 'wait') {
       this.remainingTime = randomBetween(IDLE_MIN_DURATION, IDLE_MAX_DURATION);
     } else {
-      this.remainingTime = 0;
+      this.remainingTime = randomBetween(WALK_MIN_DURATION, WALK_MAX_DURATION);
     }
 
     return nextAction;
