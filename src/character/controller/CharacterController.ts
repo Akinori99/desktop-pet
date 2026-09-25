@@ -223,7 +223,9 @@ export class CharacterController {
 
   private updateGrabbed(_deltaTime: number): void {}
 
-  private updateFall(_deltaTime: number): void {}
+  private updateFall(deltaTime: number): void {
+    this.physicsEngine.applyGravity(this.position, this.velocity, deltaTime);
+  }
 
   private updateLand(_deltaTime: number): void {}
 }
