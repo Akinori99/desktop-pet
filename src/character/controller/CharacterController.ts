@@ -9,6 +9,7 @@ import type { Position } from '../model/Position';
 import type { Velocity } from '../model/Velocity';
 import { CharacterStateMachine } from '../state/CharacterStateMachine';
 import type { ScreenBounds } from '../../platform/ScreenService';
+import { PhysicsEngine } from '../../physics/PhysicsEngine';
 import { clampHorizontalPosition } from '../../physics/screenBoundary';
 
 export class CharacterController {
@@ -20,8 +21,10 @@ export class CharacterController {
   private readonly stateMachine: CharacterStateMachine;
   private readonly actionController: ActionController;
   private readonly animationPlayer: AnimationPlayer;
+  private readonly physicsEngine: PhysicsEngine;
 
   private screenBounds: ScreenBounds | null = null;
+  private groundY: number | null = null;
 
   constructor(config: CharacterConfig, initialPosition: Position) {
     this.config = config;
@@ -32,6 +35,7 @@ export class CharacterController {
     this.stateMachine = new CharacterStateMachine('idle');
     this.actionController = new ActionController();
     this.animationPlayer = new AnimationPlayer();
+    this.physicsEngine = new PhysicsEngine(config.movement.gravity);
 
     this.updateAnimation();
   }
@@ -96,12 +100,46 @@ export class CharacterController {
     this.stateMachine.transition('grabbed');
   }
 
+  releaseGrab(): void {
+    if (
+      this.stateMachine.getCurrentState() !== 'grabbed' ||
+      this.groundY === null
+    ) {
+      return;
+    }
+
+    const isGrounded = this.physicsEngine.isGrounded(
+      this.position,
+      this.config.size.height,
+      this.groundY,
+    );
+
+    if (isGrounded) {
+      this.physicsEngine.resolveGroundCollision(
+        this.position,
+        this.velocity,
+        this.config.size.height,
+        this.groundY,
+      );
+
+      this.stateMachine.transition('idle');
+      return;
+    }
+
+    this.velocity.y = 0;
+    this.stateMachine.transition('fall');
+  }
+
   setDirection(direction: Direction): void {
     this.direction = direction;
   }
 
   setScreenBounds(screenBounds: ScreenBounds): void {
     this.screenBounds = screenBounds;
+  }
+
+  setGroundY(groundY: number): void {
+    this.groundY = groundY;
   }
 
   getSnapshot(): CharacterSnapshot {
