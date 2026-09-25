@@ -20,6 +20,8 @@ export function useCharacterDrag(): UseCharacterDragResult {
 
     activePointerIdRef.current = event.pointerId;
     draggingRef.current = true;
+
+    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const onPointerMove: PointerEventHandler<HTMLDivElement> = (event) => {
@@ -36,9 +38,13 @@ export function useCharacterDrag(): UseCharacterDragResult {
     });
   };
 
-  const finishDrag = (pointerId: number): void => {
-    if (activePointerIdRef.current !== pointerId) {
+  const finishDrag = (event: React.PointerEvent<HTMLDivElement>): void => {
+    if (activePointerIdRef.current !== event.pointerId) {
       return;
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
 
     activePointerIdRef.current = null;
@@ -46,11 +52,11 @@ export function useCharacterDrag(): UseCharacterDragResult {
   };
 
   const onPointerUp: PointerEventHandler<HTMLDivElement> = (event) => {
-    finishDrag(event.pointerId);
+    finishDrag(event);
   };
 
   const onPointerCancel: PointerEventHandler<HTMLDivElement> = (event) => {
-    finishDrag(event.pointerId);
+    finishDrag(event);
   };
 
   return {
