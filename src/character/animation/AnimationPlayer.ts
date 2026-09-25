@@ -36,7 +36,7 @@ export class AnimationPlayer {
       return;
     }
 
-    this.state.elapsedTime += deltaTime;
+    this.state.elapsedTime += deltaTime * 1000;
 
     while (this.state.elapsedTime >= this.config.frameDuration) {
       this.state.elapsedTime -= this.config.frameDuration;
@@ -44,6 +44,11 @@ export class AnimationPlayer {
       const nextFrame = this.state.currentFrame + 1;
 
       if (nextFrame >= this.config.frames.length) {
+        if (this.config.loop) {
+          this.state.currentFrame = 0;
+          continue;
+        }
+
         this.state.currentFrame = this.config.frames.length - 1;
 
         this.state.completed = true;
