@@ -1,5 +1,9 @@
 import type { CharacterAction } from './CharacterAction';
 import { selectAction } from './ActionSelector';
+import { randomBetween } from '../../shared/random';
+
+const IDLE_MIN_DURATION = 2;
+const IDLE_MAX_DURATION = 10;
 
 export class ActionController {
   private currentAction: CharacterAction | null = null;
@@ -27,7 +31,12 @@ export class ActionController {
     const nextAction = selectAction();
 
     this.currentAction = nextAction;
-    this.remainingTime = 0;
+
+    if (nextAction === 'wait') {
+      this.remainingTime = randomBetween(IDLE_MIN_DURATION, IDLE_MAX_DURATION);
+    } else {
+      this.remainingTime = 0;
+    }
 
     return nextAction;
   }
