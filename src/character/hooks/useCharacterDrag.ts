@@ -56,10 +56,12 @@ export function useCharacterDrag(): UseCharacterDragResult {
       return;
     }
 
-    void moveWindow({
-      x: event.screenX,
-      y: event.screenY,
-    });
+    const newWindowPosition: Position = {
+      x: event.screenX - dragOffsetRef.current.x,
+      y: event.screenY - dragOffsetRef.current.y,
+    };
+
+    void moveWindow(newWindowPosition);
   };
 
   const finishDrag = (event: PointerEvent<HTMLDivElement>): void => {
