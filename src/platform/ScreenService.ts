@@ -18,3 +18,9 @@ export async function getCurrentScreen(): Promise<ScreenBounds> {
 export async function getUsableArea(): Promise<ScreenBounds> {
   return invokeCommand<ScreenBounds>('get_usable_screen_bounds');
 }
+
+export async function getGroundY(): Promise<number> {
+  const usableArea = await getUsableArea();
+
+  return usableArea.y + usableArea.height;
+}
