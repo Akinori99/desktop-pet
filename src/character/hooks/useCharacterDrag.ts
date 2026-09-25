@@ -3,6 +3,10 @@ import { useRef, type PointerEvent, type PointerEventHandler } from 'react';
 import type { Position } from '../model/Position';
 import { getWindowPosition, moveWindow } from '../../platform/WindowService';
 
+interface UseCharacterDragOptions {
+  onCancel?: () => void;
+}
+
 interface UseCharacterDragResult {
   onPointerDown: PointerEventHandler<HTMLDivElement>;
   onPointerMove: PointerEventHandler<HTMLDivElement>;
@@ -10,7 +14,9 @@ interface UseCharacterDragResult {
   onPointerCancel: PointerEventHandler<HTMLDivElement>;
 }
 
-export function useCharacterDrag(): UseCharacterDragResult {
+export function useCharacterDrag(
+  options: UseCharacterDragOptions = {},
+): UseCharacterDragResult {
   const activePointerIdRef = useRef<number | null>(null);
   const draggingRef = useRef(false);
 
@@ -64,9 +70,9 @@ export function useCharacterDrag(): UseCharacterDragResult {
     void moveWindow(newWindowPosition);
   };
 
-  const finishDrag = (event: PointerEvent<HTMLDivElement>): void => {
+  const finishDrag = (event: PointerEvent<HTMLDivElement>): boolean => {
     if (activePointerIdRef.current !== event.pointerId) {
-      return;
+      return false;
     }
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -80,6 +86,8 @@ export function useCharacterDrag(): UseCharacterDragResult {
       x: 0,
       y: 0,
     };
+
+    return true;
   };
 
   const onPointerUp: PointerEventHandler<HTMLDivElement> = (event) => {
@@ -87,7 +95,11 @@ export function useCharacterDrag(): UseCharacterDragResult {
   };
 
   const onPointerCancel: PointerEventHandler<HTMLDivElement> = (event) => {
-    finishDrag(event);
+    const cancelled = finishDrag(event);
+
+    if (cancelled) {
+      options.onCancel?.();
+    }
   };
 
   return {
