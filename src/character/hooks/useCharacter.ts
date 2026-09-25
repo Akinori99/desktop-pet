@@ -4,6 +4,7 @@ import type { CharacterConfig } from '../config/CharacterConfig';
 import { CharacterController } from '../controller/CharacterController';
 import type { CharacterSnapshot } from '../model/CharacterSnapshot';
 import type { Position } from '../model/Position';
+import type { ScreenBounds } from '../../platform/ScreenService';
 import { useGameLoop } from './useGameLoop';
 
 interface UseCharacterResult {
@@ -11,6 +12,8 @@ interface UseCharacterResult {
   startGrab(): void;
   moveGrabbed(position: Position): void;
   releaseGrab(): void;
+  setScreenBounds(bounds: ScreenBounds): void;
+  setGroundY(groundY: number): void;
 }
 
 export function useCharacter(
@@ -52,10 +55,26 @@ export function useCharacter(
     setSnapshot(controller.getSnapshot());
   }, [controller]);
 
+  const setScreenBounds = useCallback(
+    (bounds: ScreenBounds) => {
+      controller.setScreenBounds(bounds);
+    },
+    [controller],
+  );
+
+  const setGroundY = useCallback(
+    (groundY: number) => {
+      controller.setGroundY(groundY);
+    },
+    [controller],
+  );
+
   return {
     snapshot,
     startGrab,
     moveGrabbed,
     releaseGrab,
+    setScreenBounds,
+    setGroundY,
   };
 }

@@ -4,6 +4,9 @@ import type { Position } from '../model/Position';
 import { getWindowPosition, moveWindow } from '../../platform/WindowService';
 
 interface UseCharacterDragOptions {
+  onStart?: () => void;
+  onMove?: (position: Position) => void;
+  onRelease?: () => void;
   onCancel?: () => void;
 }
 
@@ -34,6 +37,8 @@ export function useCharacterDrag(
     draggingRef.current = true;
 
     event.currentTarget.setPointerCapture(event.pointerId);
+
+    options.onStart?.();
 
     void getWindowPosition()
       .then((windowPosition) => {
@@ -67,6 +72,8 @@ export function useCharacterDrag(
       y: event.screenY - dragOffsetRef.current.y,
     };
 
+    options.onMove?.(newWindowPosition);
+
     void moveWindow(newWindowPosition);
   };
 
@@ -91,7 +98,11 @@ export function useCharacterDrag(
   };
 
   const onPointerUp: PointerEventHandler<HTMLDivElement> = (event) => {
-    finishDrag(event);
+    const released = finishDrag(event);
+
+    if (released) {
+      options.onRelease?.();
+    }
   };
 
   const onPointerCancel: PointerEventHandler<HTMLDivElement> = (event) => {
