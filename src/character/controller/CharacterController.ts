@@ -1,5 +1,7 @@
 import { ActionController } from '../actions/ActionController';
 import type { CharacterAction } from '../actions/CharacterAction';
+import { AnimationPlayer } from '../animation/AnimationPlayer';
+import { resolveAnimation } from '../animation/AnimationResolver';
 import type { CharacterConfig } from '../config/CharacterConfig';
 import type { CharacterSnapshot } from '../model/CharacterSnapshot';
 import type { Direction } from '../model/Direction';
@@ -17,6 +19,7 @@ export class CharacterController {
 
   private readonly stateMachine: CharacterStateMachine;
   private readonly actionController: ActionController;
+  private readonly animationPlayer: AnimationPlayer;
 
   private screenBounds: ScreenBounds | null = null;
 
@@ -28,6 +31,9 @@ export class CharacterController {
 
     this.stateMachine = new CharacterStateMachine('idle');
     this.actionController = new ActionController();
+    this.animationPlayer = new AnimationPlayer();
+
+    this.updateAnimation();
   }
 
   update(deltaTime: number): void {
@@ -68,6 +74,9 @@ export class CharacterController {
         this.updateLand(deltaTime);
         break;
     }
+
+    this.updateAnimation();
+    this.animationPlayer.update(deltaTime);
   }
 
   setDirection(direction: Direction): void {
@@ -84,8 +93,19 @@ export class CharacterController {
       position: { ...this.position },
       velocity: { ...this.velocity },
       direction: this.direction,
-      frameSrc: this.config.animations.idle.frames[0],
+      frameSrc:
+        this.animationPlayer.getCurrentFrame() ??
+        this.config.animations.idle.frames[0] ??
+        '',
     };
+  }
+
+  private updateAnimation(): void {
+    const state = this.stateMachine.getCurrentState();
+
+    const animation = resolveAnimation(state, this.config);
+
+    this.animationPlayer.play(animation);
   }
 
   private applyAction(action: CharacterAction): void {
