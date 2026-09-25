@@ -224,7 +224,30 @@ export class CharacterController {
   private updateGrabbed(_deltaTime: number): void {}
 
   private updateFall(deltaTime: number): void {
+    if (this.groundY === null) {
+      return;
+    }
+
     this.physicsEngine.applyGravity(this.position, this.velocity, deltaTime);
+
+    const isGrounded = this.physicsEngine.isGrounded(
+      this.position,
+      this.config.size.height,
+      this.groundY,
+    );
+
+    if (!isGrounded) {
+      return;
+    }
+
+    this.physicsEngine.resolveGroundCollision(
+      this.position,
+      this.velocity,
+      this.config.size.height,
+      this.groundY,
+    );
+
+    this.stateMachine.transition('land');
   }
 
   private updateLand(_deltaTime: number): void {}
