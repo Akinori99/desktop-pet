@@ -18,11 +18,11 @@ export class PhysicsEngine {
   }
 
   isGrounded(
-    _position: Position,
-    _characterHeight: number,
-    _groundY: number,
+    position: Position,
+    characterHeight: number,
+    groundY: number,
   ): boolean {
-    return false;
+    return position.y + characterHeight >= groundY;
   }
 
   resolveGroundCollision(
