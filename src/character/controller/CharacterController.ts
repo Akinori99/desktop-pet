@@ -12,6 +12,8 @@ import type { ScreenBounds } from '../../platform/ScreenService';
 import { PhysicsEngine } from '../../physics/PhysicsEngine';
 import { clampHorizontalPosition } from '../../physics/screenBoundary';
 
+const LAND_DURATION = 0.15;
+
 export class CharacterController {
   private readonly config: CharacterConfig;
   private position: Position;
@@ -25,6 +27,7 @@ export class CharacterController {
 
   private screenBounds: ScreenBounds | null = null;
   private groundY: number | null = null;
+  private landElapsedTime = 0;
 
   constructor(config: CharacterConfig, initialPosition: Position) {
     this.config = config;
@@ -247,8 +250,18 @@ export class CharacterController {
       this.groundY,
     );
 
+    this.landElapsedTime = 0;
     this.stateMachine.transition('land');
   }
 
-  private updateLand(_deltaTime: number): void {}
+  private updateLand(deltaTime: number): void {
+    this.landElapsedTime += deltaTime;
+
+    if (this.landElapsedTime < LAND_DURATION) {
+      return;
+    }
+
+    this.landElapsedTime = 0;
+    this.stateMachine.transition('idle');
+  }
 }
