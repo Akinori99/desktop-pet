@@ -44,6 +44,10 @@ export class ActionController {
     return nextAction;
   }
 
+  getCurrentAction(): CharacterAction | null {
+    return this.currentAction;
+  }
+
   cancel(): void {
     this.currentAction = null;
     this.remainingTime = 0;
