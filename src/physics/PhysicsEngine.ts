@@ -26,9 +26,12 @@ export class PhysicsEngine {
   }
 
   resolveGroundCollision(
-    _position: Position,
-    _velocity: Velocity,
-    _characterHeight: number,
-    _groundY: number,
-  ): void {}
+    position: Position,
+    velocity: Velocity,
+    characterHeight: number,
+    groundY: number,
+  ): void {
+    position.y = groundY - characterHeight;
+    velocity.y = 0;
+  }
 }
