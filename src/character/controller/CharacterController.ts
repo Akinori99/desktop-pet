@@ -103,6 +103,14 @@ export class CharacterController {
     this.stateMachine.transition('grabbed');
   }
 
+  moveGrabbed(position: Position): void {
+    if (this.stateMachine.getCurrentState() !== 'grabbed') {
+      return;
+    }
+
+    this.position = { ...position };
+  }
+
   releaseGrab(): void {
     if (
       this.stateMachine.getCurrentState() !== 'grabbed' ||
